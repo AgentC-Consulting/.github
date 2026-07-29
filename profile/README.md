@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/wordmark-dark.png">
+  <img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/wordmark-light.png" alt="AgentC Consulting" width="300">
+</picture>
+
 <img src="https://raw.githubusercontent.com/AgentC-Consulting/heatpilot/main/docs/img/social-preview.png" alt="HeatPilot — free menu-bar fan control for Apple Silicon, by AgentC Consulting" width="100%">
 
 # AgentC Consulting
