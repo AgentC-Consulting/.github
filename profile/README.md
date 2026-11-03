@@ -2,8 +2,8 @@
 
 ## Your coding agent says it is done. What changed?
 
-You say "fix the failing sign-in test" out loud, and keep working.
-Your coding agent starts on it.
+You say "fix the failing sign-in test" out loud, and keep working.<br>
+Your coding agent starts on it.<br>
 When it says it is done, can you trust what it did?
 
 <img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/scribe-pro.png" width="28" height="28" alt="" align="top"> **Scribe Pro opens the result with its proof**, so you check the change before you trust it.
