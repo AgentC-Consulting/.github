@@ -1,31 +1,27 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/wordmark-dark.png">
-  <img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/wordmark-light.png" alt="AgentC Consulting" width="300">
-</picture>
+<a href="https://agentc.consulting/?ref=github-org"><img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/banner.png" alt="AgentC Consulting: Mac apps, and the Crystal tools under them." width="100%"></a>
 
-<img src="https://raw.githubusercontent.com/AgentC-Consulting/heatpilot/main/docs/img/social-preview.png" alt="HeatPilot — free menu-bar fan control for Apple Silicon, by AgentC Consulting" width="100%">
+**We build Mac apps, and the Crystal tools we build them with.**
 
-# AgentC Consulting
+You say "fix the failing sign-in test" out loud, and keep working.
+Your coding agent picks it up, and when it is done, the proof is one click away.
+That is Scribe Pro.
 
-**We build native apps and AI-built systems with permanence** — real software,
-signed with our name on it. The best way to show you is to hand you some.
+### For your Mac
 
-## Free apps, free for life
+<img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/scribe-free.png" width="24" height="24" alt="" align="top"> **[Scribe Free](https://agentc.consulting/portfolio/scribe?ref=github-org)**: hold a hotkey, talk, and your words appear at your cursor in any app. It runs on your Mac, with no account.
 
-No accounts. No telemetry. No trials. Download and go.
+<img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/scribe-pro.png" width="24" height="24" alt="" align="top"> **[Scribe Pro](https://agentc.consulting/scribe/pro?ref=github-org)**: say what you want done, watch Codex or Claude Code do it, then open the proof. Half price until 1.0.
 
-| | | |
-|---|---|---|
-| 🌀 | **[HeatPilot](https://github.com/AgentC-Consulting/heatpilot)** | Menu-bar fan control for Apple Silicon. A cooler curve, a Full Blast button, one click back to Apple's defaults. [Download](https://github.com/AgentC-Consulting/heatpilot/releases/latest) |
-| 🎙️ | **[Scribe](https://github.com/AgentC-Consulting/scribe-app)** | On-device dictation and meeting transcription for macOS. Press a hotkey, talk, and your words land at your cursor — no cloud, ever. [Download](https://github.com/AgentC-Consulting/scribe-app/releases/latest) |
+### For Crystal developers
 
-Every release is signed with Apple Developer ID, notarized, and ships with
-GPG-signed checksums. Found a bug or want a feature? Open an issue on the
-app's repo — we read everything.
+<img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/amber.png" width="24" height="24" alt="" align="top"> **[Amber V2](https://amberframework.org)**: a Crystal web framework with Rails-style speed of building, compiled to one fast native binary. Start with the [to-do app tutorial](https://github.com/AgentC-Consulting/amber-crystal-todo-tutorial).
 
-## The part where we mention we do this for a living
+<img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/crystal.png" width="24" height="24" alt="" align="top"> **[crystal-alpha](https://github.com/crimson-knight/crystal/releases)**: our Crystal compiler, where we work on faster builds, starting with incremental compiles.
 
-Apps like these are what we build for clients: native macOS software, custom
-business systems, and AI-assisted development done by people who ship.
+<img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/book.png" width="24" height="24" alt="" align="top"> **[AED conventions](https://github.com/AgentC-Consulting/aed-conventions)**: how we write code that people and coding agents keep up together.
 
-**[agentc.consulting](https://agentc.consulting)** · agent_c@agentc.consulting
+### Try one thing today
+
+Install Scribe Free, hold the hotkey, and say your next commit message.
+
+<img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/site.png" width="24" height="24" alt="" align="top"> Want software like this built for your business? **[agentc.consulting](https://agentc.consulting/?ref=github-org)**
