@@ -20,6 +20,8 @@ AgentC makes Scribe and works on every tool on this page.
 
 <img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/mac.png" width="28" height="28" alt="" align="top"> Both need an Apple silicon Mac with macOS 26 or later.
 
+<img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/heatpilot.png" width="28" height="28" alt="" align="top"> **[HeatPilot](https://github.com/AgentC-Consulting/heatpilot)**: free fan control in your menu bar. One slider runs your fans cooler than Apple does, and its propeller grows wings when your Mac runs hot. macOS 14 or later.
+
 ### For Crystal developers
 
 <img src="https://raw.githubusercontent.com/AgentC-Consulting/.github/main/brand/icons/amber.png" width="28" height="28" alt="" align="top"> **[Amber V2](https://amberframework.org)**: build a Crystal web app with the 2.0 beta; start with the [to-do app tutorial](https://github.com/AgentC-Consulting/amber-crystal-todo-tutorial).
