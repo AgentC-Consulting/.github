@@ -41,9 +41,16 @@ jobs:
           echo "token length: ${#GITLAB_TOKEN}"
           if [ -z "${GITLAB_TOKEN}" ]; then echo "::error::GITLAB_SYNC_TOKEN is empty"; exit 1; fi
           user_code=$(curl -s -o user.json -w '%{http_code}' --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/user")
-          if [ "$user_code" != "200" ]; then echo "::error::GitLab refused the token (HTTP ${user_code})"; exit 1; fi
-          GL_USER=$(jq -r .username user.json)
+          if [ "$user_code" = "401" ]; then echo "::error::GitLab rejected the token (HTTP 401): $(cat user.json)"; exit 1; fi
+          if [ "$user_code" = "200" ]; then
+            GL_USER=$(jq -r .username user.json)
+          else
+            echo "::warning::token cannot read its user (HTTP ${user_code}): $(jq -c . user.json 2>/dev/null || cat user.json); git signs in as oauth2"
+            GL_USER=oauth2
+          fi
           echo "token owner: ${GL_USER}"
+          group_code=$(curl -s -o group.json -w '%{http_code}' --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/groups/${GROUP_ID}/projects?per_page=100")
+          echo "group projects (HTTP ${group_code}): $(jq -c 'if type=="array" then map({path, visibility}) else . end' group.json)"
           curl -s --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/personal_access_tokens/self" \
             | jq -c '{name, scopes, expires_at}' || true
           remote_for() { echo "https://${GL_USER}:${GITLAB_TOKEN}@gitlab.com/${GROUP_PATH}/$1.git"; }
