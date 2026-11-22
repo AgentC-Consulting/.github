@@ -37,11 +37,15 @@ jobs:
         run: |
           set -euo pipefail
           api="https://gitlab.com/api/v4"
-          # Preflight: print the token's owner, permissions and expiry (never the token).
-          GL_USER=$(curl -sf --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/user" | jq -r .username) || GL_USER=oauth2
+          # Preflight: check the token before touching anything (prints its length, never its value).
+          echo "token length: ${#GITLAB_TOKEN}"
+          if [ -z "${GITLAB_TOKEN}" ]; then echo "::error::GITLAB_SYNC_TOKEN is empty"; exit 1; fi
+          user_code=$(curl -s -o user.json -w '%{http_code}' --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/user")
+          if [ "$user_code" != "200" ]; then echo "::error::GitLab refused the token (HTTP ${user_code})"; exit 1; fi
+          GL_USER=$(jq -r .username user.json)
           echo "token owner: ${GL_USER}"
           curl -s --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/personal_access_tokens/self" \
-            | jq -c '{name, scopes, expires_at, active, revoked}' || true
+            | jq -c '{name, scopes, expires_at}' || true
           remote_for() { echo "https://${GL_USER}:${GITLAB_TOKEN}@gitlab.com/${GROUP_PATH}/$1.git"; }
 
           # Creates the public GitLab project when it does not exist yet.
@@ -49,11 +53,15 @@ jobs:
             local path="$1" description="$2" code
             code=$(curl -s -o /dev/null -w '%{http_code}' --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/projects/${GROUP_PATH}%2F${path}")
             if [ "$code" = "404" ]; then
-              curl -sf --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" -X POST "$api/projects" \
+              code=$(curl -s -o created.json -w '%{http_code}' --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" -X POST "$api/projects" \
                 --data-urlencode "name=${path}" --data-urlencode "path=${path}" \
                 --data-urlencode "namespace_id=${GROUP_ID}" --data-urlencode "visibility=public" \
-                --data-urlencode "description=${description}" > /dev/null
-              echo "created ${path}"
+                --data-urlencode "description=${description}")
+              if [ "$code" != "201" ]; then
+                echo "::error::could not create ${path} (HTTP ${code}): $(jq -c '.message // .error' created.json)"
+                return 1
+              fi
+              echo "created ${path} ($(jq -r .visibility created.json))"
             elif [ "$code" = "200" ]; then
               local visibility
               visibility=$(curl -sf --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/projects/${GROUP_PATH}%2F${path}" | jq -r .visibility)
