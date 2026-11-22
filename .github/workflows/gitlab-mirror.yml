@@ -37,7 +37,12 @@ jobs:
         run: |
           set -euo pipefail
           api="https://gitlab.com/api/v4"
-          remote_for() { echo "https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GROUP_PATH}/$1.git"; }
+          # Preflight: print the token's owner, permissions and expiry (never the token).
+          GL_USER=$(curl -sf --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/user" | jq -r .username) || GL_USER=oauth2
+          echo "token owner: ${GL_USER}"
+          curl -s --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/personal_access_tokens/self" \
+            | jq -c '{name, scopes, expires_at, active, revoked}' || true
+          remote_for() { echo "https://${GL_USER}:${GITLAB_TOKEN}@gitlab.com/${GROUP_PATH}/$1.git"; }
 
           # Creates the public GitLab project when it does not exist yet.
           ensure_project() {
@@ -49,7 +54,15 @@ jobs:
                 --data-urlencode "namespace_id=${GROUP_ID}" --data-urlencode "visibility=public" \
                 --data-urlencode "description=${description}" > /dev/null
               echo "created ${path}"
-            elif [ "$code" != "200" ]; then
+            elif [ "$code" = "200" ]; then
+              local visibility
+              visibility=$(curl -sf --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/projects/${GROUP_PATH}%2F${path}" | jq -r .visibility)
+              if [ "$visibility" != "public" ]; then
+                visibility=$(curl -s --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" -X PUT "$api/projects/${GROUP_PATH}%2F${path}" \
+                  --data-urlencode "visibility=public" | jq -r '.visibility // .message')
+                echo "${path} visibility now: ${visibility}"
+              fi
+            else
               echo "::error::GitLab answered ${code} for ${path}"
               return 1
             fi
