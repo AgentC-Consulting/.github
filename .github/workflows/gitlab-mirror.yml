@@ -1,0 +1,91 @@
+# Copies every public AgentC-Consulting repo to gitlab.com/agentc-consulting and
+# publishes the GitHub org page as the GitLab group page (the gitlab-profile project).
+# Free GitLab cannot pull from GitHub, so GitHub pushes. Uses only git, curl and gh
+# from the runner image; the token is Seth's personal GitLab token (write_repository,
+# limited to the agentc-consulting group), stored as the org secret GITLAB_SYNC_TOKEN.
+name: Copy public repos to GitLab
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - profile/README.md
+      - .github/workflows/gitlab-mirror.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitlab-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GITLAB_TOKEN: ${{ secrets.GITLAB_SYNC_TOKEN }}
+      GROUP_PATH: agentc-consulting
+      GROUP_ID: "148327107"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Copy repos and publish the group page
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="https://gitlab.com/api/v4"
+          remote_for() { echo "https://oauth2:${GITLAB_TOKEN}@gitlab.com/${GROUP_PATH}/$1.git"; }
+
+          # Creates the public GitLab project when it does not exist yet.
+          ensure_project() {
+            local path="$1" description="$2" code
+            code=$(curl -s -o /dev/null -w '%{http_code}' --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$api/projects/${GROUP_PATH}%2F${path}")
+            if [ "$code" = "404" ]; then
+              curl -sf --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" -X POST "$api/projects" \
+                --data-urlencode "name=${path}" --data-urlencode "path=${path}" \
+                --data-urlencode "namespace_id=${GROUP_ID}" --data-urlencode "visibility=public" \
+                --data-urlencode "description=${description}" > /dev/null
+              echo "created ${path}"
+            elif [ "$code" != "200" ]; then
+              echo "::error::GitLab answered ${code} for ${path}"
+              return 1
+            fi
+          }
+
+          status=0
+          gh repo list AgentC-Consulting --visibility public --no-archived --limit 200 \
+            --json name,description --jq '.[] | select(.name != ".github") | [.name, (.description // "")] | @tsv' > repos.tsv
+          while IFS=$'\t' read -r name description; do
+            if ! ensure_project "$name" "$description"; then status=1; continue; fi
+            rm -rf work
+            git clone --quiet --bare "https://github.com/AgentC-Consulting/${name}.git" work
+            if git -C work push --quiet --prune "$(remote_for "$name")" 'refs/heads/*:refs/heads/*' 'refs/tags/*:refs/tags/*'; then
+              echo "copied ${name}"
+            else
+              echo "::error::push failed for ${name}"
+              status=1
+            fi
+          done < repos.tsv
+
+          # The GitLab group page is the README of the group's gitlab-profile project.
+          if ensure_project gitlab-profile "The AgentC Consulting group page, published from github.com/AgentC-Consulting/.github"; then
+            rm -rf profile source
+            git clone --quiet --depth 1 https://github.com/AgentC-Consulting/.github.git source
+            git clone --quiet "$(remote_for gitlab-profile)" profile 2> /dev/null || git init --quiet profile
+            git -C profile checkout --quiet -B main
+            sed 's/ref=github-org/ref=gitlab-org/g' source/profile/README.md > profile/README.md
+            git -C profile add README.md
+            if ! git -C profile diff --cached --quiet; then
+              git -C profile -c user.name="AgentC Consulting" -c user.email="agent_c@agentc.consulting" \
+                commit --quiet -m "Group page from github.com/AgentC-Consulting/.github@${GITHUB_SHA:0:7}"
+              git -C profile push --quiet "$(remote_for gitlab-profile)" main && echo "published group page" || { echo "::error::group page push failed"; status=1; }
+            else
+              echo "group page unchanged"
+            fi
+          else
+            status=1
+          fi
+          exit $status
