@@ -65,7 +65,7 @@ jobs:
                 --data-urlencode "namespace_id=${GROUP_ID}" --data-urlencode "visibility=public" \
                 --data-urlencode "description=${description}")
               if [ "$code" != "201" ]; then
-                echo "::error::could not create ${path} (HTTP ${code}): $(jq -c '.message // .error' created.json)"
+                echo "::error::could not create ${path} (HTTP ${code}): $(jq -c '.error_description // .message // .error' created.json)"
                 return 1
               fi
               echo "created ${path} ($(jq -r .visibility created.json))"
